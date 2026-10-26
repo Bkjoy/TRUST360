@@ -12,6 +12,8 @@ class DiscrepancySeverity:
 
 class DiscrepancyStatus:
     OPEN = "OPEN"
+    PENDING = "PENDING"
+    WORKING = "WORKING"
     RESOLVED = "RESOLVED"
     DISMISSED = "DISMISSED"
 

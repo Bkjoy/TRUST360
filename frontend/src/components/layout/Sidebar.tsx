@@ -11,6 +11,8 @@ import {
   BarChart3,
   ShieldAlert,
   Bell,
+  Building,
+  Gavel,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { TrustLogo } from '../common/TrustLogo';
@@ -52,6 +54,12 @@ export const Sidebar: React.FC = () => {
       roles: ['SCRUTINY_OFFICER', 'INSTITUTION_ADMIN'],
     },
     {
+      label: 'Action',
+      path: '/action',
+      icon: <Gavel className="w-4 h-4 text-amber-400" />,
+      roles: ['APPROVING_AUTHORITY'],
+    },
+    {
       label: 'Renewals',
       path: '/renewals',
       icon: <RotateCcw className="w-4 h-4" />,
@@ -79,13 +87,19 @@ export const Sidebar: React.FC = () => {
       label: 'AI Query Assistant',
       path: '/assistant',
       icon: <AIAssistantLogo size="xs" />,
-      roles: ['SCRUTINY_OFFICER', 'APPROVING_AUTHORITY', 'INSTITUTION_ADMIN'],
+      roles: ['SUPER_ADMIN'],
+    },
+    {
+      label: 'Bank CBS Portal',
+      path: '/bank-portal',
+      icon: <Building className="w-4 h-4 text-emerald-400" />,
+      roles: ['SUPER_ADMIN'],
     },
     {
       label: 'Audit Trail',
       path: '/audit',
       icon: <ShieldAlert className="w-4 h-4" />,
-      roles: ['SCRUTINY_OFFICER', 'APPROVING_AUTHORITY'],
+      roles: ['APPROVING_AUTHORITY'],
     },
   ];
 

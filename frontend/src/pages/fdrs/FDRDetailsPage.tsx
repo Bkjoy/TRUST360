@@ -15,6 +15,7 @@ import {
   Eye,
   X,
   UploadCloud,
+  Building2,
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { FDRDetail } from '../../types/fdr';
@@ -76,17 +77,21 @@ export const FDRDetailsPage: React.FC = () => {
   const handleSimulateBankLien = async () => {
     setVerifying(true);
     try {
-      const res = await api.post(`/verification/fdrs/${id}/verify`, {
-        verification_status: 'VERIFIED',
-        remarks: 'Core Banking System simulation check',
-        simulate_bank_confirmation: true,
-      });
-      setVerifResult(
-        `Sandbox Bank Confirmed! CBS Ref: ${res.data.bank_confirmation_ref || 'CONFIRMED'}`
-      );
+      const res = await api.post(`/verification/fdrs/${id}/cbs-verify`);
+      const data = res.data;
+      if (data.cbs_status === 'VERIFIED') {
+        setVerifResult(
+          `Bank CBS Confirmed! AICTE regulatory lien verified in bank ledger. Confirmation Ref: ${data.bank_confirmation_ref || 'CONFIRMED'}`
+        );
+      } else {
+        const reasons = data.discrepancies?.join(' • ') || 'Discrepancy detected against bank ledger';
+        setVerifResult(
+          `⚠️ Bank CBS Discrepancy Flagged: ${reasons}. Discrepancy notification dispatched to institution portal.`
+        );
+      }
       await loadFdr();
-    } catch (err) {
-      alert('Simulation failed');
+    } catch (err: any) {
+      alert(err.response?.data?.detail || 'Bank CBS verification failed');
     } finally {
       setVerifying(false);
     }
@@ -160,10 +165,10 @@ export const FDRDetailsPage: React.FC = () => {
                   disabled={verifying}
                   onClick={handleSimulateBankLien}
                   className="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center gap-1.5"
-                  title="Simulate Core Banking API lien confirmation"
+                  title="Cross-examine FDR against Commercial Bank CBS records"
                 >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Sandbox Bank Lien Check</span>
+                  <Building2 className={`w-3.5 h-3.5 ${verifying ? 'animate-spin' : ''}`} />
+                  <span>{verifying ? 'Checking...' : 'Check with Bank CBS'}</span>
                 </button>
               </>
             )}

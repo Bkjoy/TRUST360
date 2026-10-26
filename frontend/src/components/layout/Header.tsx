@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, LogOut, ShieldCheck, UserCheck, RefreshCw } from 'lucide-react';
+import { Bell, LogOut, ShieldCheck, UserCheck, RefreshCw, Building2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { Notification } from '../../types/notification';
@@ -62,7 +62,17 @@ export const Header: React.FC = () => {
         )}
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* Bank CBS Portal Button */}
+        <button
+          onClick={() => navigate('/bank-portal')}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-all"
+          title="Open Commercial Bank Core Banking Portal"
+        >
+          <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Bank CBS Portal</span>
+        </button>
+
         {/* Quick Role Switcher */}
         <div className="relative">
           <button

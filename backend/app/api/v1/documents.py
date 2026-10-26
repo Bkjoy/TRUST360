@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
-from app.models.fdr import FDRInstrument, VerificationStatus
+from app.models.fdr import FDRInstrument, VerificationStatus, AdministrativeStatus
 from app.models.document import FDRDocument, AIExtraction
 from app.models.notification import NotificationSeverity
 from app.models.user import User
@@ -145,6 +145,21 @@ async def upload_fdr_document(
 
     # 7. Run Discrepancy Detection Engine against submitted FDR metadata
     DiscrepancyService.evaluate_fdr_discrepancies(db, fdr, extracted)
+
+    # 8. Mark document as AI_EXTRACTED and forward to scrutiny queue
+    if fdr.verification_status != VerificationStatus.BANK_CONFIRMED:
+        fdr.verification_status = VerificationStatus.AI_EXTRACTED
+    fdr.administrative_status = AdministrativeStatus.UNDER_SCRUTINY
+
+    # Notify Scrutiny Officer of new document in queue
+    NotificationService.send_notification(
+        db=db,
+        title=f"Document Uploaded: FDR {fdr.fdr_number}",
+        message=f"Institution uploaded document '{file.filename}' for FDR {fdr.fdr_number}. Available for review in Scrutiny Verification Queue.",
+        notification_type="DOCUMENT_UPLOAD",
+        severity=NotificationSeverity.INFO,
+        role_target="SCRUTINY_OFFICER"
+    )
 
     AuditService.log_event(
         db=db,

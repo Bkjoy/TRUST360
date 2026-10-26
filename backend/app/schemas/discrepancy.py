@@ -7,6 +7,10 @@ class DiscrepancyResponse(BaseModel):
     fdr_id: str
     fdr_number: Optional[str] = None
     institution_name: Optional[str] = None
+    institution_code: Optional[str] = None
+    institution_state: Optional[str] = None
+    bank_name: Optional[str] = None
+    amount: Optional[float] = None
     field_name: str
     submitted_value: Optional[str] = None
     extracted_value: Optional[str] = None
@@ -22,6 +26,6 @@ class DiscrepancyResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class DiscrepancyResolveRequest(BaseModel):
-    verified_value: str
-    resolution_remarks: str
-    status: str = "RESOLVED"  # RESOLVED or DISMISSED
+    verified_value: Optional[str] = None
+    resolution_remarks: Optional[str] = None
+    status: str = "RESOLVED"  # OPEN, PENDING, WORKING, RESOLVED, DISMISSED

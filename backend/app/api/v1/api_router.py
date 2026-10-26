@@ -12,7 +12,8 @@ from app.api.v1 import (
     notifications,
     reports,
     audit,
-    settings
+    settings,
+    bank
 )
 
 api_router = APIRouter()
@@ -30,3 +31,4 @@ api_router.include_router(notifications.router)
 api_router.include_router(reports.router)
 api_router.include_router(audit.router)
 api_router.include_router(settings.router)
+api_router.include_router(bank.router)

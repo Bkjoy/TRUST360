@@ -123,15 +123,21 @@ export interface DiscrepancyRecord {
   fdr_id: string;
   fdr_number?: string;
   institution_name?: string;
+  institution_code?: string;
+  institution_state?: string;
+  bank_name?: string;
+  amount?: number;
   field_name: string;
   submitted_value?: string;
   extracted_value?: string;
   verified_value?: string;
   discrepancy_type: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  status: 'OPEN' | 'RESOLVED' | 'DISMISSED';
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | string;
+  status: 'OPEN' | 'PENDING' | 'WORKING' | 'RESOLVED' | 'DISMISSED' | string;
+  resolved_by?: string;
   resolution_remarks?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface FDRDetail extends FDRInstrument {

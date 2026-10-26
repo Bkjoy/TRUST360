@@ -15,11 +15,20 @@ def get_user_notifications(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    query = db.query(Notification).filter(
-        (Notification.user_id == current_user.id) |
-        (Notification.institution_id == current_user.institution_id) |
-        (Notification.role_target == current_user.role)
-    )
+    if current_user.role == "INSTITUTION_ADMIN":
+        query = db.query(Notification).filter(
+            (Notification.user_id == current_user.id) |
+            (
+                (Notification.institution_id == current_user.institution_id) &
+                ((Notification.role_target == None) | (Notification.role_target == "INSTITUTION_ADMIN"))
+            )
+        )
+    else:
+        query = db.query(Notification).filter(
+            (Notification.user_id == current_user.id) |
+            (Notification.role_target == current_user.role) |
+            (Notification.role_target == None)
+        )
     if unread_only:
         query = query.filter(Notification.is_read == False)
 
@@ -44,11 +53,20 @@ def mark_all_read(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    db.query(Notification).filter(
-        (Notification.user_id == current_user.id) |
-        (Notification.institution_id == current_user.institution_id) |
-        (Notification.role_target == current_user.role)
-    ).update({"is_read": True}, synchronize_session=False)
+    if current_user.role == "INSTITUTION_ADMIN":
+        db.query(Notification).filter(
+            (Notification.user_id == current_user.id) |
+            (
+                (Notification.institution_id == current_user.institution_id) &
+                ((Notification.role_target == None) | (Notification.role_target == "INSTITUTION_ADMIN"))
+            )
+        ).update({"is_read": True}, synchronize_session=False)
+    else:
+        db.query(Notification).filter(
+            (Notification.user_id == current_user.id) |
+            (Notification.role_target == current_user.role) |
+            (Notification.role_target == None)
+        ).update({"is_read": True}, synchronize_session=False)
     db.commit()
     return {"message": "All notifications marked as read"}
 

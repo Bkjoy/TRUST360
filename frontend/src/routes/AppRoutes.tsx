@@ -21,6 +21,8 @@ import { AnalyticsReportsPage } from '../pages/reports/AnalyticsReportsPage';
 import { NotificationsPage } from '../pages/notifications/NotificationsPage';
 import { AuditLogsPage } from '../pages/admin/AuditLogsPage';
 import { AIAssistantPage } from '../pages/assistant/AIAssistantPage';
+import { BankPortalPage } from '../pages/bank/BankPortalPage';
+import { ActionPage } from '../pages/authority/ActionPage';
 import { useAuth } from '../context/AuthContext';
 
 const RoleBasedDashboard: React.FC = () => {
@@ -38,6 +40,7 @@ export const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/bank-portal" element={<BankPortalPage />} />
 
       {/* Authenticated Layout */}
       <Route element={<ProtectedRoute />}>
@@ -52,6 +55,7 @@ export const AppRoutes: React.FC = () => {
           {/* Verification & Discrepancies */}
           <Route path="/verification" element={<VerificationQueuePage />} />
           <Route path="/discrepancies" element={<DiscrepancyResolutionPage />} />
+          <Route path="/action" element={<ActionPage />} />
 
           {/* Workflows */}
           <Route path="/renewals" element={<RenewalListPage />} />

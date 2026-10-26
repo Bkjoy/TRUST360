@@ -49,8 +49,14 @@ def trigger_cbs_verification(
 
     cbs_status = cbs_res.get("cbs_status", "MANUAL_REVIEW")
     bank_ref = cbs_res.get("bank_confirmation_ref")
+    prior_verif_status = fdr.verification_status
 
-    # Update FDR record
+    # Update FDR record verification state based on Bank CBS outcome
+    if cbs_status == "VERIFIED":
+        fdr.verification_status = VerificationStatus.BANK_CONFIRMED
+    else:
+        fdr.verification_status = VerificationStatus.DISCREPANCY_DETECTED
+
     fdr.cbs_status = cbs_status
     fdr.cbs_confirmation_ref = bank_ref
     fdr.cbs_verified_at = datetime.now(timezone.utc)
@@ -61,7 +67,7 @@ def trigger_cbs_verification(
         fdr_id=fdr.id,
         verified_by=current_user.id,
         verification_source="CBS_GATEWAY",
-        verification_status=cbs_status,
+        verification_status=fdr.verification_status,
         bank_confirmation_ref=bank_ref,
         is_simulated=True,
         cbs_status=cbs_status,
@@ -77,20 +83,49 @@ def trigger_cbs_verification(
         fdr_id=fdr.id,
         entity_type="VERIFICATION",
         event_type="CBS_INSPECTION_COMPLETED",
-        from_status=fdr.verification_status,
+        from_status=prior_verif_status,
         to_status=fdr.verification_status,
         triggered_by=current_user.id,
         notes=f"Core Banking System outcome: {cbs_status}. Ref: {bank_ref or 'None'}."
     )
     db.add(event)
 
-    # Record discrepancies if CBS detected discrepancies
-    if cbs_status == "DISCREPANCY":
-        for disc_msg in cbs_res.get("discrepancies", []):
+    # Compile exact discrepancy reasons
+    discrepancies_list = cbs_res.get("discrepancies") or []
+    if not discrepancies_list:
+        if cbs_status == "NOT_FOUND":
+            discrepancies_list = [f"FDR Number '{fdr.fdr_number}' was not found in the issuing bank Core Banking System (CBS) registry."]
+        elif cbs_status != "VERIFIED":
+            discrepancies_list = [cbs_res.get("message") or "Instrument parameters could not be confirmed in Commercial Bank CBS."]
+
+    if cbs_status == "VERIFIED":
+        # 1. Notify Technical Institution of successful Bank Confirmation
+        NotificationService.send_notification(
+            db=db,
+            title=f"Bank Verification Confirmed: FDR {fdr.fdr_number}",
+            message=f"Commercial Bank CBS confirmed instrument {fdr.fdr_number} ({fdr.bank_name}, ₹{float(fdr.amount):,.2f}). Active AICTE joint lien is verified in the bank ledger. Bank Ref: {bank_ref}.",
+            notification_type="CBS_VERIFICATION",
+            severity=NotificationSeverity.SUCCESS,
+            institution_id=fdr.institution_id,
+            role_target="INSTITUTION_ADMIN"
+        )
+        # 2. Notify Scrutiny Desk
+        NotificationService.send_notification(
+            db=db,
+            title=f"CBS Verified: {fdr.fdr_number}",
+            message=f"Simulated Core Banking System confirmed active AICTE lien for {fdr.fdr_number} ({fdr.bank_name}, ₹{float(fdr.amount):,.2f}). Bank Ref: {bank_ref}.",
+            notification_type="CBS_VERIFICATION",
+            severity=NotificationSeverity.SUCCESS,
+            institution_id=fdr.institution_id,
+            role_target="SCRUTINY_OFFICER"
+        )
+    else:
+        # Discrepancy or Missing Record
+        for disc_msg in discrepancies_list:
             disc_rec = DiscrepancyRecord(
                 id=str(uuid.uuid4()),
                 fdr_id=fdr.id,
-                field_name="cbs_ledger",
+                field_name="bank_cbs",
                 submitted_value=f"{fdr.fdr_number} (₹{float(fdr.amount):,.2f})",
                 extracted_value=disc_msg,
                 discrepancy_type="CBS_LEDGER_MISMATCH",
@@ -98,26 +133,41 @@ def trigger_cbs_verification(
                 status=DiscrepancyStatus.OPEN
             )
             db.add(disc_rec)
-        
-        # Dispatch notification to officer
+
+        formatted_reasons = " • ".join(discrepancies_list)
+
+        # 1. SEND NOTIFICATION TO THE TECHNICAL INSTITUTION WEBPAGE WITH DETAILED REASON
         NotificationService.send_notification(
             db=db,
-            title=f"CBS Anomaly Flagged: {fdr.fdr_number}",
-            message=f"Core Banking inquiry flagged {len(cbs_res.get('discrepancies', []))} discrepancy issue(s) for {fdr.fdr_number}.",
+            title=f"Bank Verification Discrepancy: FDR {fdr.fdr_number}",
+            message=f"AICTE Scrutiny check against Commercial Bank CBS flagged discrepancy for FDR {fdr.fdr_number}. Reason(s): {formatted_reasons}. Please review and upload rectified FDR certificate.",
             notification_type="CBS_DISCREPANCY",
             severity=NotificationSeverity.CRITICAL,
-            institution_id=fdr.institution_id
+            institution_id=fdr.institution_id,
+            role_target="INSTITUTION_ADMIN"
         )
 
-    elif cbs_status == "VERIFIED":
-        # Dispatch Verified Notification to website
+        # 2. Notify Scrutiny Desk
         NotificationService.send_notification(
             db=db,
-            title=f"CBS Verified: {fdr.fdr_number}",
-            message=f"Simulated Core Banking System confirmed active AICTE lien for {fdr.fdr_number} ({fdr.bank_name}, ₹{float(fdr.amount):,.2f}). Bank Ref: {bank_ref}.",
-            notification_type="CBS_VERIFICATION",
-            severity=NotificationSeverity.SUCCESS,
-            institution_id=fdr.institution_id
+            title=f"CBS Discrepancy Flagged: {fdr.fdr_number}",
+            message=f"Core Banking inquiry flagged {len(discrepancies_list)} discrepancy condition(s) for {fdr.fdr_number}: {formatted_reasons}.",
+            notification_type="CBS_DISCREPANCY",
+            severity=NotificationSeverity.CRITICAL,
+            institution_id=fdr.institution_id,
+            role_target="SCRUTINY_OFFICER"
+        )
+
+        # 3. Notify Competent Authority (APPROVING_AUTHORITY) with detailed reasons
+        inst_name = fdr.institution.name if fdr.institution else "Institution"
+        NotificationService.send_notification(
+            db=db,
+            title=f"Bank Verification Discrepancy: FDR {fdr.fdr_number} ({inst_name})",
+            message=f"AICTE Scrutiny check against Commercial Bank CBS flagged discrepancy for FDR {fdr.fdr_number} ({inst_name}). Reason(s): {formatted_reasons}. Competent authority review and action required.",
+            notification_type="CBS_DISCREPANCY",
+            severity=NotificationSeverity.CRITICAL,
+            institution_id=fdr.institution_id,
+            role_target="APPROVING_AUTHORITY"
         )
 
     AuditService.log_event(
