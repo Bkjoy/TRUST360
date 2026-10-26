@@ -17,7 +17,7 @@ import {
   UploadCloud,
   Building2,
 } from 'lucide-react';
-import { api } from '../../services/api';
+import { api, API_BASE_URL } from '../../services/api';
 import { FDRDetail } from '../../types/fdr';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { MaturityCountdown } from '../../components/fdr/MaturityCountdown';
@@ -357,7 +357,7 @@ export const FDRDetailsPage: React.FC = () => {
                         <span>View</span>
                       </button>
                       <a
-                        href={`/api/v1/documents/${doc.id}/download`}
+                        href={`${API_BASE_URL}/documents/${doc.id}/download`}
                         target="_blank"
                         rel="noreferrer"
                         className="p-1.5 text-slate-400 hover:text-gov-navy-800 hover:bg-slate-50 rounded-lg"
@@ -437,7 +437,7 @@ export const FDRDetailsPage: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <a
-                  href={`/api/v1/documents/${viewingDocId}/download`}
+                  href={`${API_BASE_URL}/documents/${viewingDocId}/download`}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1 px-3 py-1 bg-gov-navy-700 hover:bg-gov-navy-800 text-white rounded text-xs font-medium"
@@ -455,7 +455,7 @@ export const FDRDetailsPage: React.FC = () => {
             </div>
             <div className="flex-1 bg-slate-100 p-2 overflow-hidden">
               <iframe
-                src={`/api/v1/documents/${viewingDocId}/download`}
+                src={`${API_BASE_URL}/documents/${viewingDocId}/download`}
                 title="FDR PDF Viewer"
                 className="w-full h-full rounded-lg border border-slate-300 bg-white"
               />

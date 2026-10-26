@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-export const API_BASE_URL = '/api/v1';
+// Support VITE_API_URL environment variable for production (e.g. deployed on Vercel connecting to Render)
+const rawApiUrl = (import.meta as any).env?.VITE_API_URL;
+export const API_BASE_URL = rawApiUrl
+  ? (rawApiUrl.endsWith('/api/v1') ? rawApiUrl : `${rawApiUrl.replace(/\/$/, '')}/api/v1`)
+  : '/api/v1';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

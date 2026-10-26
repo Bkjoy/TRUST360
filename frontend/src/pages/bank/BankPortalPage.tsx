@@ -17,7 +17,7 @@ import {
   X,
   FileCheck,
 } from 'lucide-react';
-import { api } from '../../services/api';
+import { api, API_BASE_URL } from '../../services/api';
 
 interface BankRecord {
   id: string;
@@ -97,7 +97,7 @@ export const BankPortalPage: React.FC = () => {
 
     try {
       const token = localStorage.getItem('trust_token') || localStorage.getItem('deposit360_token');
-      const response = await fetch('/api/v1/bank/upload-and-register', {
+      const response = await fetch(`${API_BASE_URL}/bank/upload-and-register`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
@@ -243,7 +243,7 @@ export const BankPortalPage: React.FC = () => {
                 </h1>
                 <span className="px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold rounded-full uppercase tracking-wider flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Live Gateway (Port 8000)
+                  Live Gateway Connected
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">

@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,12 +9,22 @@ from app.utils.seed_data import seed_database
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Ensure document storage directory exists
+    os.makedirs(settings.STORAGE_DIR, exist_ok=True)
+    
     # Startup: Ensure database schema is created and synthetic demo data is seeded
     Base.metadata.create_all(bind=engine)
     try:
         seed_database()
     except Exception as e:
         print(f"[STARTUP WARNING] Seed data initialization skipped or error: {e}")
+
+    try:
+        from cbs.seed_cbs import seed_cbs_database
+        seed_cbs_database()
+    except Exception as e:
+        print(f"[STARTUP WARNING] CBS seed data initialization skipped or error: {e}")
+
     yield
     # Shutdown
 
@@ -43,6 +54,7 @@ Centralized, secure, intelligent, and workflow-driven platform for managing the 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app|https://.*\.onrender\.com|http://localhost:.*|http://127\.0\.0\.1:.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

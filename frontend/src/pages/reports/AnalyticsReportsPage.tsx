@@ -14,7 +14,7 @@ import {
   Line,
   CartesianGrid,
 } from 'recharts';
-import { api } from '../../services/api';
+import { api, API_BASE_URL } from '../../services/api';
 
 const COLORS = ['#0D9488', '#F59E0B', '#EF4444', '#6366F1', '#3B82F6', '#8B5CF6'];
 
@@ -37,7 +37,7 @@ export const AnalyticsReportsPage: React.FC = () => {
   }, []);
 
   const handleExportCsv = () => {
-    window.open('/api/v1/reports/export-csv', '_blank');
+    window.open(`${API_BASE_URL}/reports/export-csv`, '_blank');
   };
 
   return (

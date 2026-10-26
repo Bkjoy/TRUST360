@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PlusCircle, UploadCloud, Download, Filter, RefreshCw } from 'lucide-react';
-import { api } from '../../services/api';
+import { api, API_BASE_URL } from '../../services/api';
 import { DataTable, Column } from '../../components/common/DataTable';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { FDRInstrument } from '../../types/fdr';
@@ -100,7 +100,7 @@ export const FDRListPage: React.FC = () => {
         </div>
         <div className="flex items-center gap-2.5">
           <button
-            onClick={() => window.open('/api/v1/reports/export-csv', '_blank')}
+            onClick={() => window.open(`${API_BASE_URL}/reports/export-csv`, '_blank')}
             className="flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold shadow-sm transition-all"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />

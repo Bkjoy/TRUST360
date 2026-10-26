@@ -10,7 +10,7 @@ import {
   Download,
 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from 'recharts';
-import { api } from '../../services/api';
+import { api, API_BASE_URL } from '../../services/api';
 import { MetricCard } from '../../components/common/MetricCard';
 
 const COLORS = ['#0D9488', '#F59E0B', '#EF4444', '#6366F1', '#3B82F6', '#8B5CF6'];
@@ -35,7 +35,7 @@ export const AdminDashboard: React.FC = () => {
   }, []);
 
   const handleExportCsv = () => {
-    window.open('/api/v1/reports/export-csv', '_blank');
+    window.open(`${API_BASE_URL}/reports/export-csv`, '_blank');
   };
 
   return (
