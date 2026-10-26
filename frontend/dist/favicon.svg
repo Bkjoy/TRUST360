@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="trustShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="50%" stop-color="#0d9488" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="trustInnerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <filter id="trustGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0d9488" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Outer Shield Badge -->
+  <path d="M50 6 L86 20 C86 54 70 82 50 94 C30 82 14 54 14 20 Z" 
+        fill="url(#trustShieldGrad)" 
+        filter="url(#trustGlow)" />
+
+  <!-- Inner Deep Shield -->
+  <path d="M50 13 L80 25 C80 52 66 76 50 86 C34 76 20 52 20 25 Z" 
+        fill="url(#trustInnerGrad)" />
+
+  <!-- Shield Core Symmetry Axis -->
+  <path d="M50 13 L50 86" stroke="#0d9488" stroke-width="1.5" stroke-opacity="0.4" />
+  <path d="M26 36 L74 36" stroke="#0d9488" stroke-width="1.5" stroke-opacity="0.25" />
+
+  <!-- Stylized Monogram "T" + Security Vault Motif -->
+  <path d="M30 30 C30 28.8954 30.8954 28 32 28 H68 C69.1046 28 70 28.8954 70 30 V37 C70 38.1046 69.1046 39 68 39 H57 V50 C57 50 61 52 61 57 C61 63 56 67 50 67 C44 67 39 63 39 57 C39 52 43 50 43 50 V39 H32 C30.8954 39 30 38.1046 30 37 Z" 
+        fill="url(#trustShieldGrad)" />
+
+  <!-- Central Vault Lock Core -->
+  <circle cx="50" cy="57" r="5.5" fill="#0f172a" stroke="url(#trustShieldGrad)" stroke-width="2" />
+  <path d="M49 55 H51 V61 H49 Z" fill="#14b8a6" />
+
+  <!-- Security Check Verification Accent -->
+  <path d="M44 73 L48 77 L57 68" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
