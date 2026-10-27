@@ -98,7 +98,8 @@ class EmailService:
 
         action_block = ""
         if link_url:
-            full_link = f"http://localhost:5173{link_url}" if link_url.startswith("/") else link_url
+            frontend_origin = os.getenv("FRONTEND_BASE_URL", "http://localhost:5173").rstrip("/")
+            full_link = f"{frontend_origin}{link_url}" if link_url.startswith("/") else link_url
             action_block = f"""
             <div style="margin: 24px 0 16px 0;">
                 <a href="{full_link}" style="display: inline-block; background-color: #0f2744; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;">

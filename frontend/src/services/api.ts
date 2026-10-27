@@ -1,7 +1,12 @@
 import axios from 'axios';
 
-// Support VITE_API_URL environment variable for production (e.g. deployed on Vercel connecting to Render)
-const rawApiUrl = (import.meta as any).env?.VITE_API_URL;
+// Backend deployed on Render: https://trust360.onrender.com
+const DEFAULT_PROD_BACKEND = 'https://trust360.onrender.com';
+
+const rawApiUrl =
+  (import.meta as any).env?.VITE_API_URL ||
+  ((import.meta as any).env?.PROD ? DEFAULT_PROD_BACKEND : undefined);
+
 export const API_BASE_URL = rawApiUrl
   ? (rawApiUrl.endsWith('/api/v1') ? rawApiUrl : `${rawApiUrl.replace(/\/$/, '')}/api/v1`)
   : '/api/v1';
