@@ -13,6 +13,7 @@ import {
   Bell,
   Building,
   Gavel,
+  History,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { TrustLogo } from '../common/TrustLogo';
@@ -57,6 +58,12 @@ export const Sidebar: React.FC = () => {
       label: 'Action',
       path: '/action',
       icon: <Gavel className="w-4 h-4 text-amber-400" />,
+      roles: ['APPROVING_AUTHORITY'],
+    },
+    {
+      label: 'Discrepancies History',
+      path: '/discrepancies-history',
+      icon: <History className="w-4 h-4 text-indigo-400" />,
       roles: ['APPROVING_AUTHORITY'],
     },
     {
